@@ -55,4 +55,9 @@ trait CanUseUUID
 
         throw new Exception("UUID version [{$this->uuidVersion()}] not supported.");
     }
+
+    protected function addToCast(string $name, string $cast)
+    {
+        $this->casts = array_merge($this->casts, [$name => $cast]);
+    }
 }

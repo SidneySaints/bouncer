@@ -3,6 +3,7 @@
 namespace Silber\Bouncer\Database;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Config;
 
 class Role extends Model
 {
@@ -22,31 +23,27 @@ class Role extends Model
      * @var array
      */
     protected $casts = [
-        'id' => 'int',
         'level' => 'int',
     ];
 
     /**
      * Constructor.
      *
-     * @param array  $attributes
+     * @param  array  $attributes
      */
     public function __construct(array $attributes = [])
     {
-        $this->setIncrementing(!config('bouncer.use_uuid'));
-        $this->setKeyType(config('bouncer.use_uuid') ? 'string' : 'int');;
+        $uuidIsUsed = Config::get('bouncer.use_uuid');
+
+        $this->setIncrementing(!$uuidIsUsed);
+
+        $this->addToCast('id', $uuidIsUsed ? 'string' : 'int');
+
+        $this->setKeyType($uuidIsUsed ? 'string' : 'int');;
+
         $this->table = Models::table('roles');
 
         parent::__construct($attributes);
     }
 
-    public function getIncrementing()
-    {
-        return false;
-    }
-
-    public function getKeyType()
-    {
-        return 'string';
-    }
 }
