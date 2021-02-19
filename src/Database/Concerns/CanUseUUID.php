@@ -30,7 +30,7 @@ trait CanUseUUID
     /**
      * The "booting" method of the model.
      */
-    public static function bootUuid(): void
+    public static function bootCanUseUUID(): void
     {
         static::creating(function (self $model): void {
             // Automatically generate a UUID if using them, and not provided.
@@ -48,9 +48,9 @@ trait CanUseUUID
     {
         switch ($this->uuidVersion()) {
             case 1:
-                return RamseyUuid::uuid1()->toString();
+                return Uuid::uuid1()->toString();
             case 4:
-                return RamseyUuid::uuid4()->toString();
+                return Uuid::uuid4()->toString();
         }
 
         throw new Exception("UUID version [{$this->uuidVersion()}] not supported.");
