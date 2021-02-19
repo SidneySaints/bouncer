@@ -16,10 +16,10 @@ class CreateBouncerTables extends Migration
     public function up()
     {
         Schema::create(Models::table('abilities'), function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $this->bouncerPrimaryKey($table);
             $table->string('name');
             $table->string('title')->nullable();
-            $table->bigInteger('entity_id')->unsigned()->nullable();
+            $this->bouncerMorphId($table,'entity_id')->nullable();
             $table->string('entity_type')->nullable();
             $table->boolean('only_owned')->default(false);
             $table->json('options')->nullable();
@@ -28,7 +28,7 @@ class CreateBouncerTables extends Migration
         });
 
         Schema::create(Models::table('roles'), function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $this->bouncerPrimaryKey($table);
             $table->string('name');
             $table->string('title')->nullable();
             $table->integer('level')->unsigned()->nullable();
@@ -42,9 +42,9 @@ class CreateBouncerTables extends Migration
         });
 
         Schema::create(Models::table('assigned_roles'), function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->bigInteger('role_id')->unsigned()->index();
-            $table->bigInteger('entity_id')->unsigned();
+            $this->bouncerPrimaryKey($table);
+            $this->bouncerMorphId($table,'role_id');
+            $this->bouncerMorphId($table,'entity_id');
             $table->string('entity_type');
             $table->bigInteger('restricted_to_id')->unsigned()->nullable();
             $table->string('restricted_to_type')->nullable();
@@ -56,14 +56,14 @@ class CreateBouncerTables extends Migration
             );
 
             $table->foreign('role_id')
-                  ->references('id')->on(Models::table('roles'))
-                  ->onUpdate('cascade')->onDelete('cascade');
+                ->references('id')->on(Models::table('roles'))
+                ->onUpdate('cascade')->onDelete('cascade');
         });
 
         Schema::create(Models::table('permissions'), function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->bigInteger('ability_id')->unsigned()->index();
-            $table->bigInteger('entity_id')->unsigned()->nullable();
+            $this->bouncerPrimaryKey($table);
+            $this->bouncerMorphId($table,'ability_id');
+            $this->bouncerMorphId($table,'entity_id')->nullable();
             $table->string('entity_type')->nullable();
             $table->boolean('forbidden')->default(false);
             $table->integer('scope')->nullable()->index();
@@ -74,8 +74,8 @@ class CreateBouncerTables extends Migration
             );
 
             $table->foreign('ability_id')
-                  ->references('id')->on(Models::table('abilities'))
-                  ->onUpdate('cascade')->onDelete('cascade');
+                ->references('id')->on(Models::table('abilities'))
+                ->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
@@ -90,5 +90,20 @@ class CreateBouncerTables extends Migration
         Schema::drop(Models::table('assigned_roles'));
         Schema::drop(Models::table('roles'));
         Schema::drop(Models::table('abilities'));
+    }
+
+    protected function bouncerPrimaryKey(Blueprint $table)
+    {
+        return config('bouncer.use_uuid') ?
+            $table->uuid('id')->primary() :
+            $table->bigIncrements('id');
+    }
+
+
+    protected function bouncerMorphId(Blueprint $table, string $name)
+    {
+        return config('bouncer.use_uuid') ?
+            $table->uuid($name) :
+            $table->bigInteger($name)->unsigned();
     }
 }
