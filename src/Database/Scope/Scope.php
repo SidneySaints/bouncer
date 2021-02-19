@@ -249,6 +249,6 @@ class Scope implements ScopeContract
      */
     protected function isRoleClass($className)
     {
-        return Models::classname(Role::class) === $className;
+        return Models::classname(config('bouncer.role_model')) === $className;
     }
 }
