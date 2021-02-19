@@ -33,8 +33,20 @@ class Role extends Model
      */
     public function __construct(array $attributes = [])
     {
+        $this->setIncrementing(!config('bouncer.use_uuid'));
+        $this->setKeyType(config('bouncer.use_uuid') ? 'string' : 'int');;
         $this->table = Models::table('roles');
 
         parent::__construct($attributes);
+    }
+
+    public function getIncrementing()
+    {
+        return false;
+    }
+
+    public function getKeyType()
+    {
+        return 'string';
     }
 }
