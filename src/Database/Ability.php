@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Ability extends Model
 {
     use Concerns\IsAbility;
+    use Concerns\CanUseUUID;
 
     /**
      * The attributes that are mass assignable.
@@ -29,7 +30,7 @@ class Ability extends Model
     /**
      * Constructor.
      *
-     * @param array  $attributes
+     * @param  array  $attributes
      */
     public function __construct(array $attributes = [])
     {
