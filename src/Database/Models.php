@@ -49,7 +49,7 @@ class Models
      */
     public static function setAbilitiesModel($model)
     {
-        static::$models[Ability::class] = $model;
+        static::$models[config('bouncer.ability_model')] = $model;
 
         static::updateMorphMap([$model]);
     }
@@ -62,7 +62,7 @@ class Models
      */
     public static function setRolesModel($model)
     {
-        static::$models[Role::class] = $model;
+        static::$models[config('bouncer.role_model')] = $model;
 
         static::updateMorphMap([$model]);
     }
@@ -152,8 +152,8 @@ class Models
     {
         if (is_null($classNames)) {
             $classNames = [
-                static::classname(Role::class),
-                static::classname(Ability::class),
+                static::classname(config('bouncer.role_model')),
+                static::classname(config('bouncer.ability_model')),
             ];
         }
 
@@ -223,7 +223,7 @@ class Models
      */
     public static function ability(array $attributes = [])
     {
-        return static::make(Ability::class, $attributes);
+        return static::make(config('bouncer.ability_model'), $attributes);
     }
 
     /**
@@ -234,7 +234,7 @@ class Models
      */
     public static function role(array $attributes = [])
     {
-        return static::make(Role::class, $attributes);
+        return static::make(config('bouncer.role_model'), $attributes);
     }
 
     /**
