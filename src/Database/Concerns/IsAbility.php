@@ -150,7 +150,7 @@ trait IsAbility
     public function roles()
     {
         $relation = $this->morphedByMany(
-            Models::classname(Role::class),
+            Models::classname(config('bouncer.role_model')),
             'entity',
             Models::table('permissions')
         )->withPivot('forbidden', 'scope');
