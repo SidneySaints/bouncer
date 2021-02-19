@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Role extends Model
 {
     use Concerns\IsRole;
+    use Concerns\CanUseUUID;
 
     /**
      * The attributes that are mass assignable.
