@@ -37,7 +37,7 @@ trait HasAbilities
     public function abilities()
     {
         $relation = $this->morphToMany(
-            Models::classname(Ability::class),
+            Models::classname(config('bouncer.ability_model')),
             'entity',
             Models::table('permissions')
         )->withPivot('forbidden', 'scope');
