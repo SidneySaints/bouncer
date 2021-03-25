@@ -36,7 +36,7 @@ trait HasRoles
     public function roles()
     {
         $relation = $this->morphToMany(
-            Models::classname(Role::class),
+            Models::classname(config('bouncer.role_model')),
             'entity',
             Models::table('assigned_roles')
         )->withPivot('scope');
