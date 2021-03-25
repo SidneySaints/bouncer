@@ -2,6 +2,7 @@
 
 namespace Silber\Bouncer\Conductors;
 
+use Silber\Bouncer\Database\Concerns\CanUseUUID;
 use Silber\Bouncer\Helpers;
 use Illuminate\Support\Collection;
 use Silber\Bouncer\Database\Models;
@@ -9,6 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class AssignsRoles
 {
+
+    use CanUseUUID;
+
     /**
      * The roles to be assigned.
      *
@@ -19,7 +23,7 @@ class AssignsRoles
     /**
      * Constructor.
      *
-     * @param \Illuminate\Support\Collection|\Silber\Bouncer\Database\Role|string  $roles
+     * @param  \Illuminate\Support\Collection|\Silber\Bouncer\Database\Role|string  $roles
      */
     public function __construct($roles)
     {
@@ -49,7 +53,7 @@ class AssignsRoles
      * Assign the given roles to the given authorities.
      *
      * @param  \Illuminate\Support\Collection  $roles
-     * @param  string $authorityClass
+     * @param  string  $authorityClass
      * @param  \Illuminate\Support\Collection  $authorityIds
      * @return void
      */
@@ -72,7 +76,7 @@ class AssignsRoles
      * Get the pivot table records for the roles already assigned.
      *
      * @param  \Illuminate\Support\Collection  $roleIds
-     * @param  string $morphType
+     * @param  string  $morphType
      * @param  \Illuminate\Support\Collection  $authorityIds
      * @return \Illuminate\Support\Collection
      */
@@ -92,19 +96,22 @@ class AssignsRoles
      * Build the raw attach records for the assigned roles pivot table.
      *
      * @param  \Illuminate\Support\Collection  $roleIds
-     * @param  string $morphType
+     * @param  string  $morphType
      * @param  \Illuminate\Support\Collection  $authorityIds
      * @return \Illuminate\Support\Collection
      */
     protected function buildAttachRecords($roleIds, $morphType, $authorityIds)
     {
-        return $roleIds->map(function ($roleId) use ($morphType, $authorityIds) {
-            return $authorityIds->map(function ($authorityId) use ($roleId, $morphType) {
-                return Models::scope()->getAttachAttributes() + [
-                    'role_id' => $roleId,
-                    'entity_id' => $authorityId,
-                    'entity_type' => $morphType,
-                ];
+        $useUUID = config('bouncer.use_uuid');
+        return $roleIds->map(function ($roleId) use ($morphType, $authorityIds, $useUUID) {
+            return $authorityIds->map(function ($authorityId) use ($roleId, $morphType, $useUUID) {
+                $data = Models::scope()->getAttachAttributes() + [
+                        'role_id' => $roleId,
+                        'entity_id' => $authorityId,
+                        'entity_type' => $morphType,
+                    ];
+
+                return $useUUID ? $data + ['id' => $this->generateUuid()] : $data;
             });
         })->collapse();
     }
@@ -119,7 +126,7 @@ class AssignsRoles
     protected function createMissingAssignRecords(Collection $records, Collection $existing)
     {
         $existing = $existing->keyBy(function ($record) {
-            return $this->getAttachRecordHash((array) $record);
+            return $this->getAttachRecordHash((array)$record);
         });
 
         $records = $records->reject(function ($record) use ($existing) {

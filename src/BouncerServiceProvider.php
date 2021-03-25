@@ -23,6 +23,7 @@ class BouncerServiceProvider extends ServiceProvider
     {
         $this->registerBouncer();
         $this->registerCommands();
+        $this->registerConfiguration();
     }
 
     /**
@@ -40,6 +41,7 @@ class BouncerServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->publishMiddleware();
             $this->publishMigrations();
+            $this->publishConfiguration();
         }
     }
 
@@ -68,6 +70,13 @@ class BouncerServiceProvider extends ServiceProvider
         $this->commands(CleanCommand::class);
     }
 
+    protected function registerConfiguration()
+    {
+        $stub = __DIR__.'/../config/bouncer.php';
+
+        $this->mergeConfigFrom($stub, 'bouncer');
+    }
+
     /**
      * Register Bouncer's models in the relation morph map.
      *
@@ -90,6 +99,20 @@ class BouncerServiceProvider extends ServiceProvider
         $target = app_path('Http/Middleware/ScopeBouncer.php');
 
         $this->publishes([$stub => $target], 'bouncer.middleware');
+    }
+
+    /**
+     * Publish the package's config.
+     *
+     * @return void
+     */
+    protected function publishConfiguration()
+    {
+        $stub = __DIR__.'/../config/bouncer.php';
+
+        $target = $this->app->configPath('bouncer.php');
+        
+        $this->publishes([$stub => $target], 'bouncer.config');
     }
 
     /**

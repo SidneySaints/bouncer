@@ -3,10 +3,12 @@
 namespace Silber\Bouncer\Database;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Config;
 
 class Role extends Model
 {
     use Concerns\IsRole;
+    use Concerns\CanUseUUID;
 
     /**
      * The attributes that are mass assignable.
@@ -21,19 +23,27 @@ class Role extends Model
      * @var array
      */
     protected $casts = [
-        'id' => 'int',
         'level' => 'int',
     ];
 
     /**
      * Constructor.
      *
-     * @param array  $attributes
+     * @param  array  $attributes
      */
     public function __construct(array $attributes = [])
     {
+        $uuidIsUsed = Config::get('bouncer.use_uuid');
+
+        $this->setIncrementing(!$uuidIsUsed);
+
+        $this->addToCast('id', $uuidIsUsed ? 'string' : 'int');
+
+        $this->setKeyType($uuidIsUsed ? 'string' : 'int');;
+
         $this->table = Models::table('roles');
 
         parent::__construct($attributes);
     }
+
 }
